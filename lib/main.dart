@@ -198,9 +198,41 @@ class HomePage extends StatelessWidget {
     return Consumer2<MoodModel, ThemeModel>(
       builder: (context, moodModel, themeModel, child) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text('Mood Toggle Challenge'),
-            backgroundColor: themeModel.getMoodColor(moodModel.currentMoodName),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(80),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    themeModel.getMoodColor(moodModel.currentMoodName),
+                    themeModel.getMoodColor(moodModel.currentMoodName).withOpacity(0.8),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    offset: Offset(0, 4),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: AppBar(
+                title: Text(
+                  'MoodTracker Pro',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                centerTitle: true,
+              ),
+            ),
           ),
           backgroundColor: themeModel.themeData.backgroundColor,
           body: SingleChildScrollView(
@@ -209,14 +241,39 @@ class HomePage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'How are you feeling?', 
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: themeModel.themeData.textColor,
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          themeModel.themeData.cardColor,
+                          themeModel.themeData.cardColor.withOpacity(0.9),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          offset: Offset(0, 4),
+                          blurRadius: 12,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'How are you feeling today?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                        color: themeModel.themeData.textColor,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
                   MoodDisplay(),
                   SizedBox(height: 30),
                   MoodButtons(),
@@ -224,10 +281,11 @@ class HomePage extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(child: MoodCounter()),
-                      SizedBox(width: 10),
+                      SizedBox(width: 4),
                       Expanded(child: MoodHistory()),
                     ],
                   ),
+                  SizedBox(height: 20),
                   ThemeSelector(),
                   SizedBox(height: 20),
                 ],
@@ -243,14 +301,40 @@ class HomePage extends StatelessWidget {
 class MoodDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<MoodModel>(
-      builder: (context, moodModel, child) {
+    return Consumer2<MoodModel, ThemeModel>(
+      builder: (context, moodModel, themeModel, child) {
         return Container(
-          width: 200,
-          height: 200,
-          child: Image.asset(
-            moodModel.currentMood,
-            fit: BoxFit.contain,
+          width: 220,
+          height: 220,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [
+                themeModel.getMoodColor(moodModel.currentMoodName).withOpacity(0.2),
+                themeModel.getMoodColor(moodModel.currentMoodName).withOpacity(0.1),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: themeModel.getMoodColor(moodModel.currentMoodName).withOpacity(0.3),
+                offset: Offset(0, 8),
+                blurRadius: 20,
+              ),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                offset: Offset(0, 4),
+                blurRadius: 12,
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Image.asset(
+              moodModel.currentMood,
+              fit: BoxFit.contain,
+            ),
           ),
         );
       },
@@ -261,71 +345,154 @@ class MoodDisplay extends StatelessWidget {
 class MoodButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Consumer<ThemeModel>(
+      builder: (context, themeModel, child) {
+        return Column(
           children: [
-            ElevatedButton(
-              onPressed: () {
-                Provider.of<MoodModel>(context, listen: false).setHappy();
-              },
-              child: Text('😊 Happy'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4),
+                    child: _buildMoodButton(
+                      context, 
+                      '😊', 
+                      'Happy', 
+                      themeModel.getMoodColor('Happy'),
+                      () => Provider.of<MoodModel>(context, listen: false).setHappy(),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4),
+                    child: _buildMoodButton(
+                      context, 
+                      '😢', 
+                      'Sad', 
+                      themeModel.getMoodColor('Sad'),
+                      () => Provider.of<MoodModel>(context, listen: false).setSad(),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4),
+                    child: _buildMoodButton(
+                      context, 
+                      '🎉', 
+                      'Excited', 
+                      themeModel.getMoodColor('Excited'),
+                      () => Provider.of<MoodModel>(context, listen: false).setExcited(),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () {
-                Provider.of<MoodModel>(context, listen: false).setSad();
-              },
-              child: Text('😢 Sad'),
+            SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.purple.shade400,
+                    Colors.pink.shade400,
+                    Colors.orange.shade400,
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.purple.withOpacity(0.4),
+                    blurRadius: 12,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: () {
+                  Provider.of<MoodModel>(context, listen: false).setRandomMood();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(width: 8),
+                    Text(
+                      'Surprise Me!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Provider.of<MoodModel>(context, listen: false).setExcited();
-              },
-              child: Text('🎉 Excited'),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildMoodButton(BuildContext context, String emoji, String label, Color color, VoidCallback onPressed) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color, color.withOpacity(0.8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.4),
+            offset: Offset(0, 4),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          padding: EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(
+              emoji,
+              style: TextStyle(fontSize: 24),
+            ),
+            SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
-        SizedBox(height: 15),
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.purple, Colors.pink, Colors.orange],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: ElevatedButton(
-            onPressed: () {
-              Provider.of<MoodModel>(context, listen: false).setRandomMood();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
-            child: Text(
-              '🤪 Random Mood',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -338,27 +505,48 @@ class MoodCounter extends StatelessWidget {
       builder: (context, moodModel, themeModel, child) {
         return Container(
           padding: EdgeInsets.all(12),
-          margin: EdgeInsets.symmetric(horizontal: 8),
+          margin: EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: themeModel.themeData.cardColor,
-            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(
+              colors: [
+                themeModel.themeData.cardColor,
+                themeModel.themeData.cardColor.withOpacity(0.95),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 5,
-                offset: Offset(0, 2),
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 12,
+                offset: Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.white.withOpacity(0.1),
+                blurRadius: 1,
+                offset: Offset(0, 1),
               ),
             ],
           ),
           child: Column(
             children: [
-              Text(
-                'Mood Counter',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: themeModel.themeData.textColor,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      'Statistics',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: themeModel.themeData.textColor,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 15),
               Row(
@@ -415,27 +603,51 @@ class MoodHistory extends StatelessWidget {
       builder: (context, moodModel, themeModel, child) {
         return Container(
           padding: EdgeInsets.all(12),
-          margin: EdgeInsets.symmetric(horizontal: 8),
+          margin: EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: themeModel.themeData.cardColor,
-            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(
+              colors: [
+                themeModel.themeData.cardColor,
+                themeModel.themeData.cardColor.withOpacity(0.95),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 5,
-                offset: Offset(0, 2),
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 12,
+                offset: Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.white.withOpacity(0.1),
+                blurRadius: 1,
+                offset: Offset(0, 1),
               ),
             ],
           ),
           child: Column(
             children: [
-              Text(
-                'Recent Moods',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: themeModel.themeData.textColor,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.history,
+                    color: themeModel.themeData.textColor,
+                    size: 18,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Recent Activity',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: themeModel.themeData.textColor,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 12),
               _buildHistoryContent(context, moodModel.moodHistory),
@@ -508,28 +720,47 @@ class ThemeSelector extends StatelessWidget {
     return Consumer<ThemeModel>(
       builder: (context, themeModel, child) {
         return Container(
-          padding: EdgeInsets.all(12),
-          margin: EdgeInsets.symmetric(horizontal: 8),
+          padding: EdgeInsets.all(16),
+          margin: EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: themeModel.themeData.cardColor,
-            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(
+              colors: [
+                themeModel.themeData.cardColor,
+                themeModel.themeData.cardColor.withOpacity(0.95),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 5,
-                offset: Offset(0, 2),
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 16,
+                offset: Offset(0, 8),
+              ),
+              BoxShadow(
+                color: Colors.white.withOpacity(0.1),
+                blurRadius: 1,
+                offset: Offset(0, 1),
               ),
             ],
           ),
           child: Column(
             children: [
-              Text(
-                'Theme Selector',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: themeModel.themeData.textColor,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(width: 8),
+                  Text(
+                    'Choose Your Theme',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: themeModel.themeData.textColor,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 12),
               Row(
@@ -558,14 +789,30 @@ class ThemeSelector extends StatelessWidget {
         themeModel.setTheme(theme);
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: themeData.backgroundColor,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey[300]!,
-            width: isSelected ? 2 : 1,
+          gradient: LinearGradient(
+            colors: [
+              themeData.backgroundColor,
+              themeData.backgroundColor.withOpacity(0.9),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.blue.shade600 : Colors.transparent,
+            width: isSelected ? 3 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected 
+                ? Colors.blue.withOpacity(0.3) 
+                : Colors.black.withOpacity(0.1),
+              blurRadius: isSelected ? 12 : 6,
+              offset: Offset(0, isSelected ? 6 : 3),
+            ),
+          ],
         ),
         child: Column(
           children: [
